@@ -15,22 +15,28 @@ pub async fn fetch_and_process_data(
     chat_id: ChatId,
 ) {
     let mut conn = redis_client.get_connection().unwrap();
-    let res_gocrowd = client
+    let res_gocrowd = match client
         .get("https://gocrowd.io/api/v2/offerings")
-        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-        .header("Accept-Language", "en-US,en;q=0.5")
         .send()
         .await
-        .unwrap();
-    let res_ikap = client
+    {
+        Ok(res) => res,
+        Err(e) => {
+            error!("Error fetching data from GoCrowd: {:?}", e);
+            return;
+        }
+    };
+    let res_ikap = match client
         .get("https://ikapitalist.kz/")
-        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-        .header("Accept-Language", "en-US,en;q=0.5")
         .send()
         .await
-        .unwrap();
+    {
+        Ok(res) => res,
+        Err(e) => {
+            error!("Error fetching data from ikapitalist: {:?}", e);
+            return;
+        }
+    };
     let html_content = res_ikap.text().await.unwrap();
     let document = Html::parse_document(&html_content);
     let selector_cart = Selector::parse(".info-item_full").unwrap();
