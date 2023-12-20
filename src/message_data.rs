@@ -67,7 +67,6 @@ impl GoCrowd {
 }
 pub type VecGoCrowd = Vec<GoCrowd>;
 pub type VecIkap = Vec<Ikap>;
-pub type TempiKap = Ikap;
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Ikap {
@@ -75,6 +74,7 @@ pub struct Ikap {
     pub img: String,
     pub progress: String,
     pub target: Target,
+    pub renew: String,
 }
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Target {
