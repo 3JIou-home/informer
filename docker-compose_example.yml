@@ -1,0 +1,19 @@
+---
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+
+  informer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      REDIS_URL: "redis:6379"
+      TG_BOT_TOKEN: ""
+      TG_CHAT_ID: ""
+      RETRY: "300"
+    depends_on:
+      - redis
+    network_mode: service:redis

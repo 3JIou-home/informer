@@ -41,18 +41,26 @@ async fn main() {
     );
     headers.insert(
         "Accept",
-        HeaderValue::from_str("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8").unwrap()
+        HeaderValue::from_str(
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        )
+        .unwrap(),
     );
     headers.insert(
         "Accept-Language",
-        HeaderValue::from_str("en-US,en;q=0.5").unwrap()
+        HeaderValue::from_str("en-US,en;q=0.5").unwrap(),
     );
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::limited(5))
-        .default_headers(headers)
-        .build().unwrap();
     let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(args.retry));
     loop {
+        let client = reqwest::Client::builder()
+            .redirect(reqwest::redirect::Policy::limited(5))
+            .cookie_store(true)
+            .default_headers(headers.clone())
+            .gzip(true)
+            .brotli(true)
+            .deflate(true)
+            .build()
+            .unwrap();
         interval.tick().await;
         fetch_and_process_data(&client, &redis_client, &bot, chat_id).await;
     }
